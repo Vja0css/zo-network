@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Социальная Сеть</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2, h3 {
+            color: #444;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            margin: 10px 0;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .post {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            position: relative;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .post img, .post video {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Социальная Сеть</h1>
+
+    <div id="registration" class="form-section">
+        <h2>Регистрация</h2>
+        <input type="text" id="username" placeholder="Имя пользователя" required>
+        <button onclick="register()">Зарегистрироваться</button>
+    </div>
+
+    <div id="profile" class="form-section hidden">
+        <h2>Профиль: <span id="userDisplay"></span></h2>
+        <button onclick="logout()">Выйти</button>
+        <h3>Создать пост</h3>
+        <textarea id="postContent" placeholder="Что у вас на уме?" rows="3"></textarea>
+        <input type="file" id="media" accept="image/*,video/*">
+        <button onclick="createPost()">Опубликовать</button>
+    </div>
+
+    <div id="posts"></div>
+</div>
+
+<script>
+    let currentUser  = null;
+
+function register() {
+    const username = document.getElementById('username').value;
+    if (username) {
+        currentUser  = username;
+        document.getElementById('username').value = '';
+        document.getElementById('registration').classList.add('hidden');
+        document.getElementById('profile').classList.remove('hidden');
+        document.getElementById('userDisplay').innerText = currentUser ;
+    } else {
+        alert("Пожалуйста, введите имя пользователя.");
+    }
+}
+
+function logout() {
+    currentUser  = null;
+    document.getElementById('profile').classList.add('hidden');
+    document.getElementById('registration').classList.remove('hidden');
+    document.getElementById('posts').innerHTML = ''; // Очистить посты при выходе
+}
+
+function createPost() {
+    const postContent = document.getElementById('postContent').value;
+    const mediaInput = document.getElementById('media');
+    const mediaFile = mediaInput.files[0];
+
+    if (postContent || mediaFile) {
+        const postDiv = document.createElement('div');
+        postDiv.classList.add('post');
+
+        const postText = document.createElement('p');
+        postText.innerText = `${currentUser }: ${postContent}`;
+        postDiv.appendChild(postText);
+
+        if (mediaFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const mediaElement = document.createElement(mediaFile.type.startsWith('image') ? 'img' : 'video');
+                mediaElement.src = e.target.result;
+                mediaElement.controls = true; // Добавляем элементы управления для видео
+                postDiv.appendChild(mediaElement);
+            }
+            reader.readAsDataURL(mediaFile);
+        }
+
+        document.getElementById('posts').prepend(postDiv);
+        document.getElementById('postContent').value = '';
+        mediaInput.value = ''; // Сбросить поле загрузки
+    } else {
+        alert("Пожалуйста, введите текст или загрузите файл.");
+    }
+}
+</script>
